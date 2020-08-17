@@ -1,0 +1,381 @@
+swagger: '2.0'
+info:
+  description: Schroedinger's REST API documentation
+  version: 1.0.0
+  title: Schroedinger API
+  contact:
+    email: you@schroedinger.de
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+tags:
+- name: user
+- name: survey
+- name: submission
+paths:
+
+# User path
+  /:
+    post:
+      tags:
+      - user
+      produces:
+      - application/json
+      parameters:
+      - in: query
+        name: reCaptcha token
+        type: string
+        required: true
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserRegistration'
+      responses:
+        201:
+          description: User created
+        400:
+          description: User could not be created
+        409: 
+          description: Username and/or email allready exist
+  /login:        
+    post:
+      tags:
+      - user
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserLogin'
+      responses:
+        200:
+          description: User login ok
+          schema:
+            items:
+              $ref: '#/definitions/UserLoginResponse'
+        400: 
+          description: Wrong credentials
+              
+# Survery path
+  /survey:
+    post:
+      tags:
+      - survey
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/CreateSurvey'
+      responses:
+        201:
+          description: Survey was created
+        400:
+          description: could not be created
+    get:
+      tags:
+      - survey
+      parameters:
+      - in: query
+        name: survey_id
+        required: true
+        type: string
+      responses:
+        200:
+          description: requested survey is available
+          schema:
+            items: 
+              $ref: '#/definitions/RequestedSurvey'
+        400:
+          description: survey not available
+  /survey/user:
+    get:
+      tags: 
+      - survey
+      parameters:
+      - in: query
+        name: survey_id
+        required: true
+        type: string
+      - in: query
+        name: private_survey_token
+        type: string
+        required: false
+      responses:
+        200: 
+          description: survey is active
+          schema:
+            $ref: '#/definitions/SurveyForUser'
+    post:
+      tags:
+      - survey
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserSurvey'
+      responses:
+        200: 
+          description: answered survey was handed in
+        400: 
+          description: answers to survey could not be persisted
+
+# Defintions of request and response objects
+definitions:
+
+# User related
+  UserRegistration:
+    type: object
+    required:
+    - username
+    - password
+    - email
+    properties:
+      username:
+        type: string
+        example: maxmustermann
+      password:
+        type: string
+        example: astrongpassword
+      email:
+        type: string
+        example: maxmustermann@contact.de
+  UserLogin:
+    type: object
+    required:
+    - username
+    - password
+    properties:
+      username:
+        type: string
+        example: maxmustermann
+      password:
+        type: string
+        example: astrongpassword 
+  UserLoginResponse:
+    type: object
+    required:
+    - id
+    - username
+    - email
+    - created
+    properties:
+      id:
+        type: string
+        example: '3Gtd-hFGD-938H'
+      username:
+        type: string
+        example: maxmustermann
+      email:
+        type: string
+        example: maxmustermann@contact.de
+      created:
+        type: string
+        example: '23.06.2020'
+        
+# Survey related  
+  Question:
+    type: object
+    required:
+      - id
+      - title
+      - constrained-options
+      - freestyle-answers
+    properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
+      title:
+        type: string
+        example: 'I like cats'
+      constrained-options:
+        type: array 
+        items:
+          $ref: '#/definitions/ConstrainedOption'
+      freestyle-answers:
+        type: string
+        example: 'Not that much, they scratch me often,so no'
+        
+  QuestionForUser:
+    type: object
+    required:
+      - id
+      - title
+      - constrained-options
+    properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
+      title:
+        type: string
+        example: 'I like cats'
+      constrained-options:
+        type: array 
+        items:
+          $ref: '#/definitions/ConstrainedOption'
+          
+  ConstrainedOption:
+    type: object
+    required: 
+      - name
+    properties:
+      name:
+        type: string
+        example: 'Very much'
+        
+  AnswerdedConstrainedQuestion:
+    type: object
+    required:
+      - id
+      - title
+      - constrained-answers
+    properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
+      title:
+        type: string
+        example: 'I like cats'
+      constrained-answers:
+        type: array 
+        items:
+          $ref: '#/definitions/GivenConstrainedAnswer'  
+        
+  GivenConstrainedAnswer:
+    type: object
+    required: 
+      - survey_id
+      - question_id
+      - question-option
+    properties:
+      survey_id:
+        type: string
+        example: 'd44f-73hg-83HZ'
+      constrained-question_id:
+        type: string
+        example: '2Fsd-73hg-83HZ'
+      constrained-question-option:
+        type: string
+        example: 'fL9d-73hg-83HZ'  
+        
+  AnswerdedFreestyleQuestion:
+    type: object
+    required:
+      - survey-question_id
+      - freestyle-answers
+    properties:
+      survey-question_id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
+      freestyle-answers:
+        type: string
+        example: 'Not that much, they scratch me often,so no'        
+        
+        
+  CreateSurvey:
+    type: object
+    required:
+    - title
+    - description
+    - start-date
+    - end-date
+    - public
+    - secured
+    - questions
+    properties:
+      title:
+        type: string
+        example: 'Experience when working with Schroedinger'
+      description:
+        type: string
+        example: 'The result of this survey is used to improve the user experience of this app'
+      start-date:
+        type: string
+        example: '25.09.2020'
+      end-date:
+        type: string
+        example: '25.10.2020'
+      public:
+        type: boolean
+        example: true
+      secured:
+        type: boolean
+        example: false
+      questions:
+        type: object
+        example: 
+          $ref: '#/definitions/Question'
+  RequestedSurvey:
+    type: object
+    required:
+    - title
+    - description
+    - start-date
+    - end-date
+    - public
+    - secured
+    - questions
+    properties:
+      title:
+        type: string
+        example: 'Experience when working with Schroedinger'
+      description:
+        type: string
+        example: 'The result of this survey is used to improve the user experience of this app'
+      start-date:
+        type: string
+        example: '25.09.2020'
+      end-date:
+        type: string
+        example: '25.10.2020'
+      public:
+        type: boolean
+        example: true
+      secured:
+        type: boolean
+        example: false
+      questions:
+        type: object
+        example: 
+          $ref: '#/definitions/AnswerdedConstrainedQuestion'
+  SurveyForUser:
+    type: object
+    required:
+    - title
+    - description
+    - questions
+    properties:
+      title:
+        type: string
+        example: 'Experience when working with Schroedinger'
+      description:
+        type: string
+        example: 'The result of this survey is used to improve the user experience of this app'
+      questions:
+        type: array
+        items:
+          $ref: '#/definitions/QuestionForUser'
+  UserSurvey:
+    type: object
+    required:
+    - survey_id
+    - constrained_answers
+    - freestyle_answers
+    properties:
+      survey_id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
+      constrained_answers:
+        type: array
+        items:
+          $ref: '#/definitions/AnswerdedConstrainedQuestion'
+      freestyle_answers:
+        type: array
+        items: 
+          $ref: '#/definitions/AnswerdedFreestyleQuestion'
