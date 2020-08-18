@@ -15,14 +15,15 @@ tags:
 paths:
 
 # User path
-  /:
+  /{reCaptcha token}:
     post:
       tags:
       - user
+      summary: create a new user account 
       produces:
       - application/json
       parameters:
-      - in: query
+      - in: path
         name: reCaptcha token
         type: string
         required: true
@@ -42,6 +43,7 @@ paths:
     post:
       tags:
       - user
+      summary: user login with given credentials
       parameters:
       - in: body
         name: payload
@@ -52,8 +54,7 @@ paths:
         200:
           description: User login ok
           schema:
-            items:
-              $ref: '#/definitions/UserLoginResponse'
+            $ref: '#/definitions/ExampleToken'
         400: 
           description: Wrong credentials
               
@@ -62,6 +63,7 @@ paths:
     post:
       tags:
       - survey
+      summary: user creates a new survey
       parameters:
       - in: header
         name: Authorization
@@ -75,13 +77,21 @@ paths:
       responses:
         201:
           description: Survey was created
+          schema:
+            $ref: '#/definitions/SurveyResponse'
         400:
           description: could not be created
+  /survey/{survey_id}:        
     get:
       tags:
       - survey
+      summary: a specific survey is fetched
       parameters:
-      - in: query
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: path
         name: survey_id
         required: true
         type: string
@@ -93,27 +103,70 @@ paths:
               $ref: '#/definitions/RequestedSurvey'
         400:
           description: survey not available
-  /survey/user:
+  
+  /survey/search:
+    get:
+      tags:
+      - survey
+      summary: retrieves a survey, based on a search term
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/SearchString'
+      responses:
+        200:
+          description: survey matching the search term was found
+          schema:
+            $ref: '#/definitions/UserSurvey'
+        
+  
+  /survey/owner:
+    get: 
+      tags: 
+      - survey
+      summary: all survey belonging to the user are fetched
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        200:
+          description: all surveys belonging to the user
+          schema:
+            $ref: '#/definitions/RequestedSurvey'
+            
+  /survey/user/{private_survey_token}:
     get:
       tags: 
       - survey
+      summary: a survey was opened trough a link
       parameters:
       - in: query
         name: survey_id
         required: true
         type: string
-      - in: query
+      - in: path
+        required: true
         name: private_survey_token
         type: string
-        required: false
       responses:
         200: 
           description: survey is active
           schema:
-            $ref: '#/definitions/SurveyForUser'
+            $ref: '#/definitions/UserSurvey'
+        403:
+          description: user not allowed to see survey, token already used
+        400:
+          description: survey not active, ended or did not start yet
+            
+  /submission/survey:          
     post:
       tags:
-      - survey
+      - submission
+      summary: user took a survey and submits it 
       parameters:
       - in: body
         name: payload
@@ -128,6 +181,34 @@ paths:
 
 # Defintions of request and response objects
 definitions:
+# Search String
+  SearchString:
+    type: object
+    required: 
+    - search
+    properties:
+      search:
+        type: string
+        example: 'SearchString'
+# Token
+  ExampleToken:
+    type: object
+    required: 
+    - token
+    properties:
+      token:
+        type: string
+        example: 'exampleJWTtoken'
+        
+# Links
+  ExampleLink:
+    type: object
+    required: 
+    - link
+    properties:
+      link:
+        type: string
+        example: 'https://schroedingers-survey.de/HJD9fhdkish349GHDGszh4hkfhs'
 
 # User related
   UserRegistration:
@@ -158,49 +239,81 @@ definitions:
       password:
         type: string
         example: astrongpassword 
-  UserLoginResponse:
-    type: object
-    required:
-    - id
-    - username
-    - email
-    - created
-    properties:
-      id:
-        type: string
-        example: '3Gtd-hFGD-938H'
-      username:
-        type: string
-        example: maxmustermann
-      email:
-        type: string
-        example: maxmustermann@contact.de
-      created:
-        type: string
-        example: '23.06.2020'
         
 # Survey related  
-  Question:
+  SurveyResponse:
     type: object
-    required:
-      - id
-      - title
-      - constrained-options
-      - freestyle-answers
+    required: 
+    - id
+    - title
+    - start date
+    - end date
+    - public
+    - secure
+    - links
     properties:
       id:
         type: string
         example: 'fgHd-73hg-83HZ'
       title:
         type: string
-        example: 'I like cats'
-      constrained-options:
+        example: 'Do you like cats'
+      start-date:
+        type: string
+        example: '25.09.2020'
+      end-date:
+        type: string
+        example: '25.10.2020'
+      public:
+        type: boolean
+        example: true
+      secured:
+        type: boolean
+        example: false
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/ExampleLink'
+
+  ConstrainedQuestion:
+    type: object
+    required:
+      - title
+      - position
+      - options
+    properties:
+      title:
+        type: string
+        example: 'Do cats have fluffy fur?'
+      position:
+        type: number
+        example: 2
+      options:
         type: array 
         items:
           $ref: '#/definitions/ConstrainedOption'
-      freestyle-answers:
+          
+  ConstrainedOption:
+    type: object
+    required: 
+      - name
+    properties:
+      name:
         type: string
-        example: 'Not that much, they scratch me often,so no'
+        example: 'Very much'        
+  
+  FreestyleQuestion:
+    type: object
+    required: 
+      - title
+      - position
+    properties:
+      title:
+        type: string
+        example: 'Do cats have fluffy fur?'
+      position:
+        type: number
+        example: 2
         
   QuestionForUser:
     type: object
@@ -219,35 +332,9 @@ definitions:
         type: array 
         items:
           $ref: '#/definitions/ConstrainedOption'
-          
-  ConstrainedOption:
-    type: object
-    required: 
-      - name
-    properties:
-      name:
-        type: string
-        example: 'Very much'
+        
         
   AnswerdedConstrainedQuestion:
-    type: object
-    required:
-      - id
-      - title
-      - constrained-answers
-    properties:
-      id:
-        type: string
-        example: 'fgHd-73hg-83HZ'
-      title:
-        type: string
-        example: 'I like cats'
-      constrained-answers:
-        type: array 
-        items:
-          $ref: '#/definitions/GivenConstrainedAnswer'  
-        
-  GivenConstrainedAnswer:
     type: object
     required: 
       - survey_id
@@ -287,7 +374,8 @@ definitions:
     - end-date
     - public
     - secured
-    - questions
+    - constrained_questions
+    - freestyle_questions
     properties:
       title:
         type: string
@@ -307,10 +395,15 @@ definitions:
       secured:
         type: boolean
         example: false
-      questions:
-        type: object
-        example: 
-          $ref: '#/definitions/Question'
+      constrained_questions:
+        type: array
+        items:
+          $ref: '#/definitions/ConstrainedQuestion'
+      freestyle_questions:
+        type: array
+        items:
+          $ref: '#/definitions/FreestyleQuestion'
+          
   RequestedSurvey:
     type: object
     required:
@@ -320,7 +413,8 @@ definitions:
     - end-date
     - public
     - secured
-    - questions
+    - constrained_questions
+    - freestyle_questions
     properties:
       title:
         type: string
@@ -340,42 +434,47 @@ definitions:
       secured:
         type: boolean
         example: false
-      questions:
-        type: object
-        example: 
+      constrained_questions:
+        type: array
+        items: 
           $ref: '#/definitions/AnswerdedConstrainedQuestion'
-  SurveyForUser:
-    type: object
-    required:
-    - title
-    - description
-    - questions
-    properties:
-      title:
-        type: string
-        example: 'Experience when working with Schroedinger'
-      description:
-        type: string
-        example: 'The result of this survey is used to improve the user experience of this app'
-      questions:
+      freestyle_questions:
         type: array
         items:
-          $ref: '#/definitions/QuestionForUser'
+          $ref: '#/definitions/AnswerdedFreestyleQuestion'
+          
+          
   UserSurvey:
     type: object
     required:
     - survey_id
+    - title
+    - start-date
+    - end-date
+    - description
     - constrained_answers
     - freestyle_answers
     properties:
       survey_id:
         type: string
         example: 'fgHd-73hg-83HZ'
+      title:
+        type: string
+        example: 'Experience when working with Schroedinger'
+      start-date:
+        type: string
+        example: '25.09.2020'
+      end-date:
+        type: string
+        example: '25.10.2020'  
+      description:
+        type: string
+        example: 'The result of this survey is used to improve the user experience of this app'
       constrained_answers:
         type: array
         items:
-          $ref: '#/definitions/AnswerdedConstrainedQuestion'
+          $ref: '#/definitions/ConstrainedQuestion'
       freestyle_answers:
         type: array
         items: 
-          $ref: '#/definitions/AnswerdedFreestyleQuestion'
+          $ref: '#/definitions/FreestyleQuestion'
