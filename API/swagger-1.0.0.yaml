@@ -500,7 +500,6 @@ definitions:
     - description
     - start-date
     - end-date
-    - public
     - secured
     - constrained_questions
     - freestyle_questions
@@ -517,9 +516,6 @@ definitions:
       end-date:
         type: string
         example: '25.10.2020'
-      public:
-        type: boolean
-        example: true
       secured:
         type: boolean
         example: false
@@ -540,7 +536,6 @@ definitions:
     - description
     - start-date
     - end-date
-    - public
     - secured
     - constrained_questions
     - freestyle_questions
@@ -560,9 +555,6 @@ definitions:
       end-date:
         type: string
         example: '25.10.2020'
-      public:
-        type: boolean
-        example: true
       secured:
         type: boolean
         example: false
