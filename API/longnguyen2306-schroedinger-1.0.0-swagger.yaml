@@ -12,10 +12,11 @@ tags:
 - name: user
 - name: survey
 - name: submission
+- name: token
 paths:
 
 # User path
-  /{reCaptcha token}:
+  /:
     post:
       tags:
       - user
@@ -23,8 +24,8 @@ paths:
       produces:
       - application/json
       parameters:
-      - in: path
-        name: reCaptcha token
+      - in: query
+        name: recaptcha_token
         type: string
         required: true
       - in: body
@@ -81,7 +82,110 @@ paths:
             $ref: '#/definitions/SurveyResponse'
         400:
           description: could not be created
-  /survey/{survey_id}:        
+  /survey/public:        
+    get:
+      tags:
+      - survey
+      summary: retrieves public surveys, based on a search term
+      parameters:
+      - in: query
+        type: string
+        name: title
+      - in: query
+        type: string
+        name: page_number
+        default: 0
+      - in: query
+        type: string
+        name: page_size
+        default: 5
+      - in: query
+        type: string
+        name: start_date
+      - in: query
+        type: string
+        name: end_date
+      responses:
+        200:
+          description: survey matching the search term was found
+          schema:
+            items:
+              $ref: '#/definitions/UserSurvey' 
+              
+  /survey/public/{survey_id}:        
+    get:
+      tags:
+      - survey
+      summary: a specific survey is fetched
+      parameters:
+      - in: path
+        name: survey_id
+        required: true
+        type: string
+      responses:
+        200:
+          description: requested survey is available
+          schema:
+            $ref: '#/definitions/RequestedSurvey'
+        400:
+          description: survey not available
+ 
+  /survey/public/count:
+    get:
+      tags:
+      - survey
+      summary: gets the count of all existing surveys
+      parameters:
+      - in: query
+        type: string
+        name: title
+      - in: query
+        type: string
+        name: start_date
+      - in: query
+        type: string
+        name: end_date  
+      responses:
+        200:
+          description: count was calculated
+          schema:
+            $ref: '#/definitions/Count'
+        
+  
+  /survey/secured:
+    get: 
+      tags: 
+      - survey
+      summary: all survey belonging to the user are fetched
+      parameters:
+      - in: query
+        type: string
+        name: title
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: query
+        type: string
+        name: page_number
+        default: 0
+      - in: query
+        type: string
+        name: page_size
+        default: 5  
+      - in: query
+        type: string
+        name: start_date
+      - in: query
+        type: string
+        name: end_date  
+      responses:
+        200:
+          description: all surveys belonging to the user
+          schema:
+            $ref: '#/definitions/RequestedSurvey'
+          
+  /survey/secured/{survey_id}:        
     get:
       tags:
       - survey
@@ -89,6 +193,10 @@ paths:
       parameters:
       - in: header
         name: Authorization
+        required: true
+        type: string
+      - in: query
+        name: token
         required: true
         type: string
       - in: path
@@ -99,75 +207,45 @@ paths:
         200:
           description: requested survey is available
           schema:
-            items: 
-              $ref: '#/definitions/RequestedSurvey'
+            $ref: '#/definitions/RequestedSurvey'
         400:
           description: survey not available
-  
-  /survey/search:
+          
+  /survey/secured/count:
     get:
       tags:
       - survey
-      summary: retrieves a survey, based on a search term
+      summary: gets the count of all existing surveys
       parameters:
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/SearchString'
-      responses:
-        200:
-          description: survey matching the search term was found
-          schema:
-            $ref: '#/definitions/UserSurvey'
-        
-  
-  /survey/owner:
-    get: 
-      tags: 
-      - survey
-      summary: all survey belonging to the user are fetched
-      parameters:
+      - in: query
+        type: string
+        name: title
       - in: header
         name: Authorization
         required: true
         type: string
+      - in: query
+        type: string
+        name: start_date
+      - in: query
+        type: string
+        name: end_date
       responses:
         200:
-          description: all surveys belonging to the user
+          description: count was calculated
           schema:
-            $ref: '#/definitions/RequestedSurvey'
-            
-  /survey/user/{private_survey_token}:
-    get:
-      tags: 
-      - survey
-      summary: a survey was opened trough a link
-      parameters:
-      - in: query
-        name: survey_id
-        required: true
-        type: string
-      - in: path
-        required: true
-        name: private_survey_token
-        type: string
-      responses:
-        200: 
-          description: survey is active
-          schema:
-            $ref: '#/definitions/UserSurvey'
-        403:
-          description: user not allowed to see survey, token already used
-        400:
-          description: survey not active, ended or did not start yet
-            
-  /submission/survey:          
+            $ref: '#/definitions/Count'
+
+# submission path            
+  /submission:          
     post:
       tags:
       - submission
       summary: user took a survey and submits it 
       parameters:
+      - in: header
+        name: token
+        type: string
       - in: body
         name: payload
         required: true
@@ -175,21 +253,77 @@ paths:
           $ref: '#/definitions/UserSurvey'
       responses:
         200: 
-          description: answered survey was handed in
+          description: submission successfull
         400: 
-          description: answers to survey could not be persisted
+          description: submission could not be handed in
+  /submission/{survey_id}:      
+    get:
+      tags: 
+      - submission
+      summary: owner can get submissions to a survey
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: path
+        name: survey_id
+        type: string
+        required: true
+      - in: query
+        type: string
+        name: page_number
+        default: 0
+      - in: query
+        type: string
+        name: page_size
+        default: 5    
+      responses:
+        200:
+          description: found submissions to survey
+          schema:
+            items:
+              $ref: '#/definitions/Submission'
+        
+          
+# token path
+  /token:
+    post:
+      tags:
+      - token
+      summary: retrieve a specific number of token, in a link they can be used to provide access to secure surveys
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: query
+        name: amount
+        type: number
+        required: true
+      - in: query
+        name: survey_id
+        type: string
+        required: true
+      responses:
+        200:
+          description: token for links to share a survey
+          schema:
+            items:
+              $ref: '#/definitions/ExampleToken'
+        
 
 # Defintions of request and response objects
 definitions:
-# Search String
-  SearchString:
+# Count
+  Count:
     type: object
     required: 
-    - search
+    - count
     properties:
-      search:
-        type: string
-        example: 'SearchString'
+      count:
+        type: number
+        example: 12
 # Token
   ExampleToken:
     type: object
@@ -198,7 +332,7 @@ definitions:
     properties:
       token:
         type: string
-        example: 'exampleJWTtoken'
+        example: 'exampleToken'
         
 # Links
   ExampleLink:
@@ -278,10 +412,14 @@ definitions:
   ConstrainedQuestion:
     type: object
     required:
+      - id
       - title
       - position
       - options
     properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
       title:
         type: string
         example: 'Do cats have fluffy fur?'
@@ -297,17 +435,25 @@ definitions:
     type: object
     required: 
       - name
+      - position
     properties:
       name:
         type: string
-        example: 'Very much'        
+        example: 'Very much'   
+      positions:
+        type: number
+        example: 1
   
   FreestyleQuestion:
     type: object
     required: 
+      - id
       - title
       - position
     properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
       title:
         type: string
         example: 'Do cats have fluffy fur?'
@@ -315,41 +461,23 @@ definitions:
         type: number
         example: 2
         
-  QuestionForUser:
-    type: object
-    required:
-      - id
-      - title
-      - constrained-options
-    properties:
-      id:
-        type: string
-        example: 'fgHd-73hg-83HZ'
-      title:
-        type: string
-        example: 'I like cats'
-      constrained-options:
-        type: array 
-        items:
-          $ref: '#/definitions/ConstrainedOption'
-        
         
   AnswerdedConstrainedQuestion:
     type: object
     required: 
-      - survey_id
-      - question_id
-      - question-option
+      - question
+      - answer_option
     properties:
-      survey_id:
-        type: string
-        example: 'd44f-73hg-83HZ'
-      constrained-question_id:
-        type: string
-        example: '2Fsd-73hg-83HZ'
-      constrained-question-option:
-        type: string
-        example: 'fL9d-73hg-83HZ'  
+      question:
+        type: object
+        example:
+          $ref: '#/definitions/ConstrainedQuestion'
+      answer_option:
+        type: object
+        example: 
+          $ref: '#/definitions/ConstrainedOption'
+      
+        
         
   AnswerdedFreestyleQuestion:
     type: object
@@ -407,6 +535,7 @@ definitions:
   RequestedSurvey:
     type: object
     required:
+    - id
     - title
     - description
     - start-date
@@ -416,6 +545,9 @@ definitions:
     - constrained_questions
     - freestyle_questions
     properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
       title:
         type: string
         example: 'Experience when working with Schroedinger'
@@ -437,11 +569,11 @@ definitions:
       constrained_questions:
         type: array
         items: 
-          $ref: '#/definitions/AnswerdedConstrainedQuestion'
+          $ref: '#/definitions/ConstrainedQuestion'
       freestyle_questions:
         type: array
         items:
-          $ref: '#/definitions/AnswerdedFreestyleQuestion'
+          $ref: '#/definitions/FreestyleQuestion'
           
           
   UserSurvey:
@@ -478,3 +610,31 @@ definitions:
         type: array
         items: 
           $ref: '#/definitions/FreestyleQuestion'
+          
+#submission
+  Submission:
+    type: object
+    required: 
+    - id
+    - survey_id
+    - token
+    - constrained_answers
+    - freestyle_answers
+    properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
+      survey_id:
+        type: string
+        example: 'fgHd-73hg-83HZ'  
+      token:
+        type: string
+        example: 'exampleToken'
+      constrained_answers:
+        type: array
+        items:
+          $ref: '#/definitions/AnswerdedConstrainedQuestion'
+      freestyle_answers:
+        type: array
+        items:
+          $ref: '#/definitions/AnswerdedFreestyleQuestion'
