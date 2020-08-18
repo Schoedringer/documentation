@@ -250,7 +250,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/UserSurvey'
+          $ref: '#/definitions/Submission'
       responses:
         200: 
           description: submission successfull
@@ -431,6 +431,24 @@ definitions:
         items:
           $ref: '#/definitions/ConstrainedOption'
           
+  OnlyQuestion:
+    type: object
+    required: 
+    - id
+    - title
+    - position
+    properties:
+      id:
+        type: string
+        example: 'fgHd-73hg-83HZ'
+      title:
+        type: string
+        example: 'Do cats have fluffy fur?'
+      position:
+        type: number
+        example: 2
+    
+          
   ConstrainedOption:
     type: object
     required: 
@@ -471,7 +489,7 @@ definitions:
       question:
         type: object
         example:
-          $ref: '#/definitions/ConstrainedQuestion'
+          $ref: '#/definitions/OnlyQuestion'
       answer_option:
         type: object
         example: 
@@ -624,7 +642,7 @@ definitions:
         example: 'exampleToken'
       constrained_answers:
         type: array
-        items:
+        items: 
           $ref: '#/definitions/AnswerdedConstrainedQuestion'
       freestyle_answers:
         type: array
