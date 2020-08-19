@@ -16,7 +16,7 @@ tags:
 paths:
 
 # User path
-  /:
+  /user:
     post:
       tags:
       - user
@@ -40,7 +40,7 @@ paths:
           description: User could not be created
         409: 
           description: Username and/or email allready exist
-  /login:        
+  /user/login:        
     post:
       tags:
       - user
