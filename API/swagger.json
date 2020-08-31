@@ -699,10 +699,10 @@
     "ExampleToken": {
       "type": "object",
       "required": [
-        "token"
+        "id"
       ],
       "properties": {
-        "token": {
+        "id": {
           "type": "string",
           "example": "exampleToken"
         }
