@@ -193,6 +193,11 @@
           {
             "in": "query",
             "type": "string",
+            "name": "user_id"
+          },
+          {
+            "in": "query",
+            "type": "string",
             "name": "title"
           },
           {
