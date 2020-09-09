@@ -148,6 +148,57 @@
         }
       }
     },
+    "/user/password/reset": {
+      "post": {
+        "description": "If only one credential (username or email) is given this is taken as default. But if both are given email is used to reset password.",
+        "tags": [
+          "user"
+        ],
+        "summary": "send link to reset password if forgotten and no login possible",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResetPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Link to reset Password was send"
+          },
+          "403": {
+            "description": "Password can not be reset, given Credentials are wrong"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "change the password of the user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResetPassword"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Password was changed"
+          },
+          "400": {
+            "description": "Password could not be reset"
+          }
+        }
+      }
+    },
     "/survey": {
       "post": {
         "tags": [
@@ -646,6 +697,40 @@
     }
   },
   "definitions": {
+    "ResetPasswordRequest": {
+      "type": "object",
+      "required": [
+        "username",
+        "email"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "admin"
+        },
+        "email": {
+          "type": "string",
+          "example": "admin@mail.de"
+        }
+      }
+    },
+    "ResetPassword": {
+      "type": "object",
+      "required": [
+        "reset_password_token",
+        "new_password"
+      ],
+      "properties": {
+        "reset_password_token": {
+          "type": "string",
+          "example": "fgHd-73hg-83HZ"
+        },
+        "new_password": {
+          "type": "string",
+          "example": "newstrongpassword"
+        }
+      }
+    },
     "SendTokenPerMailRequest": {
       "type": "object",
       "required": [
