@@ -63,6 +63,36 @@
             "description": "Username and/or email allready exist"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "change user credentials (username, email, password)",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ChangeUserData"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User Data was updated"
+          },
+          "400": {
+            "description": "User Data could not be changed"
+          }
+        }
       }
     },
     "/user/login": {
@@ -697,6 +727,33 @@
     }
   },
   "definitions": {
+    "ChangeUserData": {
+      "type": "object",
+      "required": [
+        "username",
+        "email",
+        "old_password",
+        "new_password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "bongoCat"
+        },
+        "email": {
+          "type": "string",
+          "example": "bongo@cat.de"
+        },
+        "old_password": {
+          "type": "string",
+          "example": "whatTheUserThinksIsOldPassword"
+        },
+        "new_password": {
+          "type": "string",
+          "example": "newStrongPassword"
+        }
+      }
+    },
     "ResetPasswordRequest": {
       "type": "object",
       "required": [
