@@ -98,6 +98,7 @@
         "tags": [
           "user"
         ],
+        "description": "username or email, password required",
         "summary": "user can delete his account permanently",
         "parameters": [
           {
@@ -292,11 +293,14 @@
             "description": "could not be created"
           }
         }
-      },
+      }
+    },
+    "/survey/{survey_id}": {
       "put": {
         "tags": [
           "survey"
         ],
+        "description": "Only pending surveys or surveys that are active, but have no submissions, can be changed",
         "summary": "change the survey details",
         "parameters": [
           {
@@ -306,6 +310,12 @@
             "schema": {
               "$ref": "#/definitions/UpdateSurvey"
             }
+          },
+          {
+            "in": "path",
+            "name": "survey_id",
+            "type": "string",
+            "required": true
           }
         ],
         "responses": {
@@ -330,7 +340,7 @@
             "type": "string"
           },
           {
-            "in": "query",
+            "in": "path",
             "name": "survey_id",
             "type": "string",
             "required": true
@@ -810,6 +820,18 @@
             "type": "string",
             "name": "used",
             "default": false
+          },
+          {
+            "in": "query",
+            "type": "number",
+            "name": "page_number",
+            "default": 0
+          },
+          {
+            "in": "query",
+            "type": "number",
+            "name": "page_size",
+            "default": 3
           }
         ],
         "responses": {
@@ -820,12 +842,15 @@
             }
           }
         }
-      },
+      }
+    },
+    "/token/participation/{token_id}": {
       "delete": {
         "tags": [
           "token"
         ],
-        "summary": "delete unused tokens or specific tokens",
+        "summary": "delete unused token",
+        "description": "Only unused token can be deleted",
         "parameters": [
           {
             "in": "header",
@@ -834,7 +859,7 @@
             "type": "string"
           },
           {
-            "in": "query",
+            "in": "path",
             "name": "token_id",
             "type": "string",
             "required": true
