@@ -286,6 +286,37 @@
             "description": "Changes were not possible"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "survey"
+        ],
+        "summary": "suer can delete a survey permanently",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "survey_id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Survey was successfully deleted"
+          },
+          "400": {
+            "description": "Survey could not be deleted"
+          },
+          "403": {
+            "description": "No permission to delete survey (e.g. not the owner)"
+          }
+        }
       }
     },
     "/survey/public": {
