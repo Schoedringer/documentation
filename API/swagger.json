@@ -790,6 +790,37 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "token"
+        ],
+        "summary": "delete unused tokens or specific tokens",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "token_id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "participation token was deleted"
+          },
+          "400": {
+            "description": "participation token could not be delted"
+          },
+          "403": {
+            "description": "forbidden, authorization is missing"
+          }
+        }
       }
     }
   },
