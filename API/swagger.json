@@ -724,9 +724,51 @@
           }
         }
       }
+    },
+    "/token/participation": {
+      "get": {
+        "tags": [
+          "token"
+        ],
+        "summary": "get all participation token of a survey",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "type": "string",
+            "name": "survey_id",
+            "required": true
+          },
+          {
+            "in": "query",
+            "type": "string",
+            "name": "used",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the participation token were fetched",
+            "schema": {
+              "$ref": "#/definitions/ParticipationToken"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "ParticipationToken": {
+      "type": "array",
+      "items": {
+        "example": "slkjd-flkjs-fd345"
+      }
+    },
     "ChangeUserData": {
       "type": "object",
       "required": [
