@@ -93,6 +93,36 @@
             "description": "User Data could not be changed"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "user can delete his account permanently",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeleteUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User account was deleted"
+          },
+          "400": {
+            "description": "User account could not be deleted"
+          }
+        }
       }
     },
     "/user/login": {
@@ -956,6 +986,28 @@
         "created": {
           "type": "string",
           "example": "25.09.2020"
+        }
+      }
+    },
+    "DeleteUser": {
+      "type": "object",
+      "required": [
+        "username",
+        "email",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "larapara"
+        },
+        "email": {
+          "type": "string",
+          "example": "lara@para.de"
+        },
+        "password": {
+          "type": "string",
+          "example": "superstrongpassword"
         }
       }
     },
