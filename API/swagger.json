@@ -759,44 +759,7 @@
             }
           }
         }
-      }
-    },
-    "/token/email": {
-      "post": {
-        "tags": [
-          "token"
-        ],
-        "summary": "send linkt to secured survey per mail",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "payload",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/SendTokenPerMailRequest"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "links were sent per mail to emails in body"
-          },
-          "403": {
-            "description": "User is not authorized to send mails"
-          },
-          "500": {
-            "description": "Something went wrong, emails could not be send"
-          }
-        }
-      }
-    },
-    "/token/participation": {
+      },
       "get": {
         "tags": [
           "token"
@@ -844,7 +807,42 @@
         }
       }
     },
-    "/token/participation/{token_id}": {
+    "/token/email": {
+      "post": {
+        "tags": [
+          "token"
+        ],
+        "summary": "send linkt to secured survey per mail",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SendTokenPerMailRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "links were sent per mail to emails in body"
+          },
+          "403": {
+            "description": "User is not authorized to send mails"
+          },
+          "500": {
+            "description": "Something went wrong, emails could not be send"
+          }
+        }
+      }
+    },
+    "/token/{token_id}": {
       "delete": {
         "tags": [
           "token"
