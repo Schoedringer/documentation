@@ -331,7 +331,7 @@
         "tags": [
           "survey"
         ],
-        "summary": "suer can delete a survey permanently",
+        "summary": "user can delete a survey permanently",
         "parameters": [
           {
             "in": "header",
@@ -764,7 +764,7 @@
         "tags": [
           "token"
         ],
-        "description": "used_date is only there if the token was used",
+        "description": "used_date and submission_id are only there if the token was used. If used is not given all token (used and unused are returned)",
         "summary": "get all participation token of a survey",
         "parameters": [
           {
@@ -781,9 +781,8 @@
           },
           {
             "in": "query",
-            "type": "string",
-            "name": "used",
-            "default": false
+            "type": "boolean",
+            "name": "used"
           },
           {
             "in": "query",
@@ -828,6 +827,14 @@
             "name": "survey_id",
             "type": "string",
             "required": true
+          },
+          {
+            "in": "query",
+            "type": "boolean",
+            "name": "used"
+          },
+          {
+            "in": "query"
           }
         ],
         "responses": {
@@ -1054,14 +1061,9 @@
     "DeleteUser": {
       "type": "object",
       "required": [
-        "user_id",
         "password"
       ],
       "properties": {
-        "user_id": {
-          "type": "string",
-          "example": "sdfsd-dfjsd.sdf-sdf"
-        },
         "password": {
           "type": "string",
           "example": "superstrongpassword"
