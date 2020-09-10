@@ -764,6 +764,7 @@
         "tags": [
           "token"
         ],
+        "description": "used_date is only there if the token was used",
         "summary": "get all participation token of a survey",
         "parameters": [
           {
@@ -801,7 +802,9 @@
           "200": {
             "description": "the participation token were fetched",
             "schema": {
-              "$ref": "#/definitions/ParticipationToken"
+              "items": {
+                "$ref": "#/definitions/TokenObject"
+              }
             }
           }
         }
@@ -825,21 +828,13 @@
             "name": "survey_id",
             "type": "string",
             "required": true
-          },
-          {
-            "in": "body",
-            "name": "payload",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Count"
-            }
           }
         ],
         "responses": {
           "200": {
             "description": "Count",
             "schema": {
-              "$ref": "#/definitions/ParticipationToken"
+              "$ref": "#/definitions/Count"
             }
           },
           "400": {
@@ -1094,6 +1089,43 @@
         "id": {
           "type": "string",
           "example": "exampleToken"
+        }
+      }
+    },
+    "TokenObject": {
+      "type": "object",
+      "required": [
+        "id",
+        "used",
+        "used_date",
+        "created",
+        "survey_id",
+        "submission_id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "jkfdsh-e9oc-wqwolje"
+        },
+        "used": {
+          "type": "boolean",
+          "example": true
+        },
+        "used_date": {
+          "type": "string",
+          "example": "23.3.20"
+        },
+        "created": {
+          "type": "string",
+          "example": "22.3.20"
+        },
+        "survey_id": {
+          "type": "string",
+          "example": "ksjd-dskjf-sdkfjh"
+        },
+        "submission_id": {
+          "type": "string",
+          "example": "sdf-dkjf-ljree-"
         }
       }
     },
