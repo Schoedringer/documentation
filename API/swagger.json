@@ -957,6 +957,33 @@
     }
   },
   "definitions": {
+    "ChangeUserData": {
+      "type": "object",
+      "required": [
+        "old_password",
+        "username",
+        "email",
+        "new_password"
+      ],
+      "properties": {
+        "old_password": {
+          "type": "string",
+          "example": "someoldpassword"
+        },
+        "username": {
+          "type": "string",
+          "example": "larryberry97"
+        },
+        "email": {
+          "type": "string",
+          "example": "larry@berrymail.com"
+        },
+        "new_password": {
+          "type": "string",
+          "example": "newsecurepassword"
+        }
+      }
+    },
     "ResetPasswordRequest": {
       "type": "object",
       "required": [
