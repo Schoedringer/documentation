@@ -637,11 +637,6 @@
           },
           {
             "in": "query",
-            "name": "user_id",
-            "type": "string"
-          },
-          {
-            "in": "query",
             "name": "page_number",
             "type": "number"
           },
@@ -649,6 +644,16 @@
             "in": "query",
             "name": "page_size",
             "type": "number"
+          },
+          {
+            "in": "query",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "description",
+            "type": "string"
           },
           {
             "in": "query",
