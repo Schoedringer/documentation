@@ -35,7 +35,7 @@
 - Creating protected survey for internal with higher access control. :ballot_box_with_check:
 - Flexible media types: 
     + Multiple choice questions. :ballot_box_with_check:
-    + free-text questions. :ballot_box_with_check:
+    + Free-text questions. :ballot_box_with_check:
     + Images, videos, sound. :black_square_button:
     + Quiz mode. :black_square_button:
     + Grading mode. :black_square_button:
